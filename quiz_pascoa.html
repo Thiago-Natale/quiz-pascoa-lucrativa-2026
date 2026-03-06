@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Páscoa — Descubra Sua Receita Lucrativa</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sage:       #7A9E7E;
+    --sage-light: #EBF2EC;
+    --sage-dark:  #4A6B4E;
+    --caramel:    #C8781A;
+    --caramel-light: #FFF3E0;
+    --choco:      #3D1F0D;
+    --choco-mid:  #7B4621;
+    --cream:      #FDF8F2;
+    --warm-white: #FFFDF9;
+    --gold:       #D4A843;
+    --blush:      #E8C4A0;
+    --text:       #2A1A0E;
+    --muted:      #8B7355;
+    --border:     #E5D5C0;
+    --radius:     20px;
+    --radius-sm:  12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── BACKGROUND ── */
+  .bg-wrap {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse 80% 60% at 20% 10%, #e8f5e0 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 90%, #fde8c8 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 50% 50%, #fff9f0 0%, transparent 70%);
+  }
+  .bg-dots {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, #c8781a15 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .float-egg {
+    position: absolute; font-size: 2rem; opacity: 0.12;
+    animation: float 8s ease-in-out infinite;
+  }
+  .float-egg:nth-child(2) { top:8%; left:5%; animation-delay:-2s; font-size:1.4rem; }
+  .float-egg:nth-child(3) { top:15%; right:8%; animation-delay:-5s; font-size:1.8rem; }
+  .float-egg:nth-child(4) { top:60%; left:3%; animation-delay:-1s; font-size:1.2rem; }
+  .float-egg:nth-child(5) { top:75%; right:5%; animation-delay:-6s; font-size:2.2rem; }
+  .float-egg:nth-child(6) { top:40%; right:2%; animation-delay:-3.5s; font-size:1rem; }
+  .float-egg:nth-child(7) { top:88%; left:10%; animation-delay:-4.5s; font-size:1.6rem; }
+  @keyframes float {
+    0%,100%{ transform: translateY(0) rotate(-5deg); }
+    50%    { transform: translateY(-18px) rotate(5deg); }
+  }
+
+  /* ── WRAPPER ── */
+  .container {
+    position: relative; z-index: 1;
+    max-width: 640px; margin: 0 auto;
+    padding: 24px 20px 60px;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+
+  /* ── BRAND ── */
+  .brand {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 36px; align-self: center;
+    opacity: 0; animation: fadeDown .6s .1s forwards;
+  }
+  .brand-icon { font-size: 1.6rem; }
+  .brand-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem; color: var(--choco-mid); letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  /* ── CARD ── */
+  .card {
+    width: 100%;
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 48px 44px;
+    box-shadow: 0 4px 40px rgba(61,31,13,.06), 0 1px 0 rgba(255,255,255,.9) inset;
+  }
+  @media(max-width:520px){ .card{ padding: 36px 24px; } }
+
+  /* ── PROGRESS ── */
+  .progress-wrap {
+    margin-bottom: 32px;
+    opacity: 0; animation: fadeIn .4s .2s forwards;
+  }
+  .progress-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  .progress-label { font-size: .8rem; color: var(--muted); font-weight: 500; letter-spacing:.04em; text-transform:uppercase; }
+  .progress-count { font-size: .8rem; color: var(--muted); }
+  .progress-bar-bg {
+    height: 5px; background: var(--border); border-radius: 99px; overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sage), var(--caramel));
+    border-radius: 99px;
+    transition: width .6s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ── QUESTION ── */
+  .q-emoji { font-size: 2.8rem; display: block; margin-bottom: 18px; text-align: center; }
+  .q-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.55rem; line-height: 1.35;
+    color: var(--choco); text-align: center; margin-bottom: 8px;
+  }
+  .q-subtitle {
+    font-size: .92rem; color: var(--muted); text-align: center;
+    margin-bottom: 32px; line-height: 1.6;
+  }
+
+  /* ── OPTIONS ── */
+  .options { display: flex; flex-direction: column; gap: 12px; }
+  .opt {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 20px;
+    background: var(--cream);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all .22s cubic-bezier(.4,0,.2,1);
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .opt:hover {
+    border-color: var(--sage);
+    background: var(--sage-light);
+    transform: translateX(4px);
+    box-shadow: 0 2px 16px rgba(122,158,126,.15);
+  }
+  .opt.selected {
+    border-color: var(--sage-dark);
+    background: var(--sage-light);
+    box-shadow: 0 0 0 3px rgba(122,158,126,.2);
+  }
+  .opt-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .opt-text { flex: 1; }
+  .opt-label { font-size: .97rem; font-weight: 600; color: var(--choco); display: block; }
+  .opt-desc  { font-size: .82rem; color: var(--muted); margin-top: 2px; display: block; }
+  .opt-check {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--border); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s;
+    font-size: .8rem; color: transparent;
+  }
+  .opt.selected .opt-check {
+    background: var(--sage-dark); border-color: var(--sage-dark); color: white;
+  }
+
+  /* ── BTN ── */
+  .btn-wrap { margin-top: 28px; }
+  .btn {
+    width: 100%; padding: 17px 32px;
+    background: linear-gradient(135deg, var(--choco) 0%, var(--choco-mid) 100%);
+    color: white; border: none; border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem; font-weight: 600;
+    cursor: pointer; letter-spacing: .03em;
+    transition: all .25s; position: relative; overflow: hidden;
+    box-shadow: 0 4px 20px rgba(61,31,13,.25);
+  }
+  .btn::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,.12) 0%, transparent 100%);
+    opacity: 0; transition: opacity .2s;
+  }
+  .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(61,31,13,.3); }
+  .btn:hover::before { opacity: 1; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+  .btn-secondary {
+    background: transparent; color: var(--muted); box-shadow: none;
+    border: 1.5px solid var(--border); margin-top: 10px;
+    font-size: .9rem; padding: 13px;
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--cream); color: var(--choco); box-shadow: none;
+  }
+
+  /* ── SLIDE TRANSITIONS ── */
+  .screen { display: none; }
+  .screen.active { display: block; animation: slideIn .45s cubic-bezier(.4,0,.2,1); }
+  .screen.leaving { animation: slideOut .3s cubic-bezier(.4,0,.2,1) forwards; }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideOut {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(-30px); }
+  }
+  @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+  @keyframes fadeDown{ from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeUp  { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes pop     { 0%{transform:scale(.8);opacity:0} 70%{transform:scale(1.05)} 100%{transform:scale(1);opacity:1} }
+  @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+
+  /* ── WELCOME ── */
+  .welcome-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--caramel-light); border: 1px solid #f0c98040;
+    color: var(--caramel); padding: 6px 14px; border-radius: 99px;
+    font-size: .78rem; font-weight: 600; letter-spacing:.05em; text-transform:uppercase;
+    margin-bottom: 22px; animation: fadeIn .5s .3s both;
+  }
+  .welcome-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.1rem; line-height: 1.25; color: var(--choco);
+    margin-bottom: 16px; animation: fadeUp .6s .4s both;
+  }
+  .welcome-title em { font-style: italic; color: var(--caramel); }
+  .welcome-desc {
+    font-size: .97rem; color: var(--muted); line-height: 1.7;
+    margin-bottom: 28px; animation: fadeUp .6s .5s both;
+  }
+  .welcome-pills {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 32px; animation: fadeUp .6s .6s both;
+  }
+  .pill {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--sage-light); color: var(--sage-dark);
+    padding: 6px 12px; border-radius: 99px;
+    font-size: .8rem; font-weight: 500;
+  }
+  .welcome-time {
+    text-align: center; font-size: .8rem; color: var(--muted);
+    margin-top: 14px; animation: fadeIn .5s .8s both;
+  }
+
+  /* ── RESULT ── */
+  .result-hero {
+    text-align: center; padding: 8px 0 24px;
+  }
+  .result-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--gold), var(--caramel));
+    color: white; padding: 8px 20px; border-radius: 99px;
+    font-size: .8rem; font-weight: 600; letter-spacing:.06em; text-transform:uppercase;
+    margin-bottom: 18px; animation: pop .5s .2s both;
+    box-shadow: 0 4px 16px rgba(212,168,67,.35);
+  }
+  .result-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem; color: var(--choco); line-height: 1.3;
+    margin-bottom: 8px; animation: fadeUp .5s .3s both;
+  }
+  .result-subtitle {
+    font-size: .92rem; color: var(--muted); line-height: 1.6;
+    margin-bottom: 28px; animation: fadeUp .5s .4s both;
+  }
+  .result-products {
+    display: flex; flex-direction: column; gap: 10px;
+    margin-bottom: 28px; animation: fadeUp .5s .5s both;
+  }
+  .result-product {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--cream); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px 18px;
+  }
+  .rp-icon { font-size: 1.8rem; }
+  .rp-body { flex: 1; }
+  .rp-name { font-weight: 600; font-size: .95rem; color: var(--choco); }
+  .rp-info { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+  .rp-profit {
+    font-weight: 700; font-size: .95rem; color: var(--sage-dark);
+    background: var(--sage-light); padding: 4px 10px; border-radius: 8px;
+    white-space: nowrap;
+  }
+  .result-projection {
+    background: linear-gradient(135deg, var(--choco) 0%, #5C3010 100%);
+    color: white; border-radius: var(--radius-sm); padding: 22px 24px;
+    margin-bottom: 28px; animation: fadeUp .5s .6s both;
+    position: relative; overflow: hidden;
+  }
+  .result-projection::before {
+    content: '🍫'; position: absolute; right: -10px; bottom: -10px;
+    font-size: 5rem; opacity: .08;
+  }
+  .proj-label { font-size: .75rem; text-transform: uppercase; letter-spacing:.06em; opacity:.7; margin-bottom: 4px; }
+  .proj-value { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 700; margin-bottom: 4px; }
+  .proj-sub { font-size: .85rem; opacity: .8; }
+  .cta-block { animation: fadeUp .5s .7s both; }
+  .cta-main {
+    width: 100%; padding: 19px;
+    background: linear-gradient(135deg, var(--caramel) 0%, #B5600E 100%);
+    color: white; border: none; border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif; font-size: 1.05rem; font-weight: 700;
+    cursor: pointer; transition: all .25s;
+    box-shadow: 0 6px 24px rgba(200,120,26,.4);
+    position: relative; overflow: hidden;
+    background-size: 200%; background-position: 0%;
+  }
+  .cta-main::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.15) 50%, transparent 100%);
+    background-size: 200% 100%; background-position: -200% 0;
+    animation: shimmer 2.5s 1.5s infinite;
+  }
+  .cta-main:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(200,120,26,.5); }
+  .cta-guarantee {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin-top: 12px; font-size: .8rem; color: var(--muted);
+  }
+  .restart-link {
+    display: block; text-align: center; margin-top: 20px;
+    font-size: .85rem; color: var(--muted); cursor: pointer;
+    text-decoration: underline; text-decoration-color: transparent;
+    transition: all .2s;
+  }
+  .restart-link:hover { color: var(--choco); text-decoration-color: var(--choco); }
+
+  /* ── CONFETTI ── */
+  .confetti-piece {
+    position: fixed; width: 8px; height: 8px; border-radius: 2px;
+    pointer-events: none; z-index: 9999;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0%   { transform: translateY(-20px) rotateZ(0deg) scale(1); opacity: 1; }
+    100% { transform: translateY(100vh) rotateZ(720deg) scale(0.5); opacity: 0; }
+  }
+
+  /* ── DIVIDER ── */
+  .or-divider {
+    display: flex; align-items: center; gap: 12px;
+    color: var(--muted); font-size: .8rem; margin: 10px 0;
+  }
+  .or-divider::before, .or-divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-wrap">
+  <div class="bg-dots"></div>
+  <span class="float-egg">🥚</span>
+  <span class="float-egg">🐣</span>
+  <span class="float-egg">🍫</span>
+  <span class="float-egg">🌸</span>
+  <span class="float-egg">🐰</span>
+  <span class="float-egg">🥕</span>
+  <span class="float-egg">🌷</span>
+</div>
+
+<div class="container">
+
+  <div class="brand">
+    <span class="brand-icon">🐣</span>
+    <span class="brand-name">Páscoa Lucrativa</span>
+  </div>
+
+  <div class="card">
+
+    <!-- PROGRESS (hidden on welcome/result) -->
+    <div class="progress-wrap" id="progressWrap" style="display:none">
+      <div class="progress-meta">
+        <span class="progress-label">Seu perfil</span>
+        <span class="progress-count" id="progressCount">1 de 5</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressFill" style="width:20%"></div>
+      </div>
+    </div>
+
+    <!-- ═══ SCREEN 0 — WELCOME ═══ -->
+    <div class="screen active" id="screen-0">
+      <div class="welcome-badge">✨ Páscoa lucrativa 2026 — Quiz Gratuito</div>
+      <h1 class="welcome-title">
+        Descubra qual receita vai te fazer lucrar <em>mais</em> nessa Páscoa
+      </h1>
+      <p class="welcome-desc">
+        Responda 5 perguntas rápidas e descubra o produto ideal para o seu perfil, quanto você pode faturar e como começar ainda hoje.
+      </p>
+      <div class="welcome-pills">
+        <span class="pill">🍫 12 receitas exclusivas</span>
+        <span class="pill">💰 R$2.000 de lucro ou mais</span>
+        <span class="pill">⚡ Começa do zero</span>
+        <span class="pill">🏠 De casa, no celular</span>
+      </div>
+      <div class="btn-wrap">
+        <button class="btn" onclick="startQuiz()">Descobrir minha receita ideal →</button>
+      </div>
+      <p class="welcome-time">⏱ Leva menos de 2 minutos</p>
+    </div>
+
+    <!-- ═══ SCREEN 1 — Q1 ═══ -->
+    <div class="screen" id="screen-1">
+      <span class="q-emoji">🎯</span>
+      <h2 class="q-title">Qual é o seu objetivo principal nessa Páscoa?</h2>
+      <p class="q-subtitle">Seja honesta — isso vai definir a estratégia ideal para você.</p>
+      <div class="options" id="opts-1">
+        <button class="opt" onclick="selectOpt(1, 'vender', this)">
+          <span class="opt-icon">💰</span>
+          <span class="opt-text">
+            <span class="opt-label">Quero ganhar uma renda extra</span>
+            <span class="opt-desc">Produzir e vender para aumentar o orçamento</span>
+          </span>
+          <span class="opt-check">✓</span>
+        </button>
+        <button class="opt" onclick="selectOpt(1, 'presentear', this)">
+          <span class="opt-icon">🎁</span>
+          <span class="opt-text">
+            <span class="opt-label">Quero impressionar presenteando</span>
+            <span class="opt-desc">Fazer algo artesanal e especial para quem amo</span>
+          </span>
+          <span class="opt-check">✓</span>
+        </button>
+        <button class="opt" onclick="selectOpt(1, 'ambos', this)">
+          <span class="opt-icon">🚀</span>
+          <span class="opt-text">
+            <span class="opt-label">Os dois — vender E presentear</span>
+            <span class="opt-desc">Quero aproveitar ao máximo essa época</span>
+          </span>
+          <span class="opt-check">✓</span>
+        </button>
+      </div>
+      <div class="btn-wrap">
+        <button class="btn" id="btn-1" disabled onclick="nextScreen(2)">Próxima →</button>
+      </div>
+    </div>
+
+    <!-- ═══ SCREEN 2 — Q2 ═══ -->
+    <div class="screen" id="screen-2">
+      <span class="q-emoji">👩‍🍳</span>
+      <h2 class="q-title">Qual é o seu nível de experiência na cozinha?</h2>
+      <p class="q-subtitle">Não se preocupe — temos receitas para todos os perfis.</p>
+      <div class="options" id="opts-2">
+        <button class="opt" onclick="selectOpt(2, 'iniciante', this)">
+          <span class="opt-icon">🌱</span>
+          <span class="opt-text">
+            <span class="opt-label">Iniciante</span>
+            <span class="opt-desc">Nunca ou quase nunca fiz doces. Preciso de receitas simples.</span>
+          </span>
+          <span class="opt-check">✓</span>
+        </button>
+        <button class="opt" onclick="selectOpt(2, 'intermediario', this)">
+          <span class="opt-icon">⚡</span>
+          <span class="opt-text">
+            <span class="opt-label">Intermediária</span>
+            <span class="opt-desc">Já fiz alguns doces. Me viro bem na cozinha.</span>
+          </span>
+          <span class="opt-check">✓</span>
+        </button>
+        <button class="opt" onclick="selectOpt(2, 'avancado', this)">
+          <span class="opt-icon">🏆</span>
+          <span class="opt-text">
+            <span class="opt-label">Avançada / Confeiteira</span>
+            <span class="opt-desc">Tenho experiência e quero receitas que destaquem meu trabalho.</span>
+          </span>
+          <span class="opt-check">✓</span>
+        </button>
+      </div>
+      <div class="btn-wrap">
+        <button class="btn" id="btn-2" disabled onclick="nextScreen(3)">Próxima →</button>
+      </div>
+    </div>
+
+    <!-- ═══ SCREEN 3 — Q3 ═══ -->
+    <div class="screen" id="screen-3">
+      <span class="q-emoji">⏰</span>
+      <h2 class="q-title">Quanto tempo você tem disponível por dia para produzir?</h2>
+      <p class="q-subtitle">Isso vai definir quantas unidades você consegue fazer e quanto pode lucrar.</p>
+      <div class="options" id="opts-3">
+        <button class="opt" onclick="selectOpt(3, 'pouco', this)">
+          <span class="opt-icon">🕐</span>
+          <span class="opt-text">
+            <span class="opt-label">Até 1 hora por dia</span>
+            <span class="opt-desc">Tenho outras responsabilidades, mas quero aproveitar a Páscoa.</span>
+          </span>
+          <span class="opt-check">✓</span>
+        </button>
+        <button class="opt" onclick="selectOpt(3, 'medio', this)">
+          <span class="opt-icon">🕒</span>
+          <span class="opt-text">
+            <span class="opt-label">2 a 3 horas por dia</span>
+            <span class="opt-desc">Tenho uma boa janela para produzir com qualidade.</span>
+          </span>
+          <span class="opt-check">✓</span>
+        </button>
+        <button class="opt" onclick="selectOpt(3, 'total', this)">
+          <span class="opt-icon">🕗</span>
+          <span class="opt-text">
+            <span class="opt-label">O quanto precisar</span>
+            <span class="opt-desc">Estou comprometida. Quero maximizar o lucro nessa Páscoa.</span>
+          </span>
+          <span class="opt-check">✓</span>
+        </button>
+      </div>
+      <div class="btn-wrap">
+        <button class="btn" id="btn-3" disabled onclick="nextScreen(4)">Próxima →</button>
+      </div>
+    </div>
+
+    <!-- ═══ SCREEN 4 — Q4 ═══ -->
+    <div class="screen" id="screen-4">
+      <span class="q-emoji">💎</span>
+      <h2 class="q-title">O que mais importa para você no produto final?</h2>
+      <p class="q-subtitle">Sua prioridade define o posicionamento certo para vender mais.</p>
+      <div class="options" id="opts-4">
+        <button class="opt" onclick="selectOpt(4, 'facilidade', this)">
+          <span class="opt-icon">✨</span>
+          <span class="opt-text">
+            <span class="opt-label">Facilidade e rapidez</span>
+            <span class="opt-desc">Quero produzir bastante, sem complicação.</span>
+          </span>
+          <span class="opt-check">✓</span>
+        </button>
+        <button class="opt" onclick="selectOpt(4, 'lucro', this)">
+          <span class="opt-icon">📈</span>
+          <span class="opt-text">
+            <span class="opt-label">Máximo de lucro por unidade</span>
+            <span class="opt-desc">Prefiro produzir menos, mas ganhar mais em cada venda.</span>
+          </span>
+          <span class="opt-check">✓</span>
+        </button>
+        <button class="opt" onclick="selectOpt(4, 'visual', this)">
+          <span class="opt-icon">📸</span>
+          <span class="opt-text">
+            <span class="opt-label">Visual incrível e originalidade</span>
+            <span class="opt-desc">Quero que as fotos bomem no Instagram e gerem mais pedidos.</span>
+          </span>
+          <span class="opt-check">✓</span>
+        </button>
+      </div>
+      <div class="btn-wrap">
+        <button class="btn" id="btn-4" disabled onclick="nextScreen(5)">Próxima →</button>
+      </div>
+    </div>
+
+    <!-- ═══ SCREEN 5 — Q5 ═══ -->
+    <div class="screen" id="screen-5">
+      <span class="q-emoji">💳</span>
+      <h2 class="q-title">Qual é o seu orçamento inicial para comprar os ingredientes?</h2>
+      <p class="q-subtitle">Sem julgamento — vamos encontrar a estratégia certa para o que você tem disponível.</p>
+      <div class="options" id="opts-5">
+        <button class="opt" onclick="selectOpt(5, 'baixo', this)">
+          <span class="opt-icon">🌿</span>
+          <span class="opt-text">
+            <span class="opt-label">Até R$ 50</span>
+            <span class="opt-desc">Começo pequeno e reinvisto o lucro para crescer.</span>
+          </span>
+          <span class="opt-check">✓</span>
+        </button>
+        <button class="opt" onclick="selectOpt(5, 'medio', this)">
+          <span class="opt-icon">💼</span>
+          <span class="opt-text">
+            <span class="opt-label">R$ 50 a R$ 150</span>
+            <span class="opt-desc">Consigo investir um valor inicial razoável.</span>
+          </span>
+          <span class="opt-check">✓</span>
+        </button>
+        <button class="opt" onclick="selectOpt(5, 'alto', this)">
+          <span class="opt-icon">🚀</span>
+          <span class="opt-text">
+            <span class="opt-label">Acima de R$ 150</span>
+            <span class="opt-desc">Estou pronta para investir e ter retorno expressivo.</span>
+          </span>
+          <span class="opt-check">✓</span>
+        </button>
+      </div>
+      <div class="btn-wrap">
+        <button class="btn" id="btn-5" disabled onclick="showResult()">Ver meu resultado →</button>
+      </div>
+    </div>
+
+    <!-- ═══ SCREEN RESULT ═══ -->
+    <div class="screen" id="screen-result">
+      <!-- dynamically filled -->
+    </div>
+
+  </div><!-- /card -->
+
+</div><!-- /container -->
+
+<script>
+const answers = {};
+let currentQ = 0;
+
+function startQuiz() {
+  document.getElementById('progressWrap').style.display = 'block';
+  nextScreen(1);
+}
+
+function selectOpt(q, value, el) {
+  answers['q' + q] = value;
+  document.querySelectorAll('#opts-' + q + ' .opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('btn-' + q).disabled = false;
+}
+
+function nextScreen(to) {
+  const prev = document.querySelector('.screen.active');
+  if (prev) {
+    prev.classList.add('leaving');
+    setTimeout(() => {
+      prev.classList.remove('active', 'leaving');
+      showScreen(to);
+    }, 280);
+  } else {
+    showScreen(to);
+  }
+}
+
+function showScreen(id) {
+  const el = document.getElementById('screen-' + id);
+  if (!el) return;
+  el.classList.add('active');
+  currentQ = id;
+  if (id >= 1 && id <= 5) {
+    const pct = (id / 5) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressCount').textContent = id + ' de 5';
+    document.getElementById('progressWrap').style.display = 'block';
+  }
+}
+
+// ─── RESULT ENGINE ───
+function showResult() {
+  const a = answers;
+  const profile = buildProfile(a);
+
+  // Fill result screen
+  document.getElementById('screen-result').innerHTML = buildResultHTML(profile);
+
+  // Hide progress
+  document.getElementById('progressWrap').style.display = 'none';
+
+  // Transition
+  const prev = document.querySelector('.screen.active');
+  if (prev) {
+    prev.classList.add('leaving');
+    setTimeout(() => {
+      prev.classList.remove('active', 'leaving');
+      document.getElementById('screen-result').classList.add('active');
+      confetti();
+    }, 280);
+  }
+}
+
+function buildProfile(a) {
+  const profiles = {
+    // ─── BEGINNER + SELL ───
+    iniciante_vender: {
+      badge: "Empreendedora em Ascensão 🌱",
+      title: "Você está pronta para sua primeira venda de Páscoa!",
+      sub: "Identificamos o perfil perfeito para você começar com segurança, baixo investimento e alto retorno. Suas receitas-chave são simples, rápidas e com margem excelente.",
+      products: [
+        { icon: "🍮", name: "Mousse de Chocolate", info: "3 ingredientes • 30 min • Fácil", profit: "+R$ 40/refratário" },
+        { icon: "🥚", name: "Mini Ovinhos sem Recheio", info: "Kit de 5 un • 15 min • Fácil", profit: "+R$ 55/kit" },
+        { icon: "🍋", name: "Ovo de Torta de Limão", info: "1 un • 30 min • Fácil", profit: "+R$ 41/un" },
+      ],
+      projLabel: "Lucro estimado para sua Páscoa",
+      projValue: "R$ 400 – R$ 800",
+      projSub: "Produzindo 2-3h/dia nos dias que antecedem a Páscoa",
+      ctaText: "Quero acessar as 12 receitas agora →",
+    },
+    // ─── INTERMEDIATE + SELL ───
+    intermediario_vender: {
+      badge: "Confeiteira de Alto Rendimento 🚀",
+      title: "Você tem potencial para faturar muito nessa Páscoa!",
+      sub: "Seu nível de habilidade abre portas para os produtos mais lucrativos do e-book. Com sua experiência, você consegue produzir com velocidade e qualidade.",
+      products: [
+        { icon: "🍫", name: "Ovo de Brownie", info: "350g • 40 min • Fácil", profit: "+R$ 76/un" },
+        { icon: "🦕", name: "Ovo de Dinossauro", info: "500g • 45 min • Viral", profit: "+R$ 93/un" },
+        { icon: "💎", name: "Mini Ovinhos Recheados", info: "Kit 5 un • 25 min • 3 sabores", profit: "+R$ 70/kit" },
+      ],
+      projLabel: "Lucro estimado para sua Páscoa",
+      projValue: "R$ 900 – R$ 1.600",
+      projSub: "Mix de produtos premium com 3-4h de produção/dia",
+      ctaText: "Quero acessar as 12 receitas agora →",
+    },
+    // ─── ADVANCED + SELL ───
+    avancado_vender: {
+      badge: "Confeiteira Profissional Premium 🏆",
+      title: "Você tem tudo para ter uma Páscoa histórica de vendas!",
+      sub: "Com sua habilidade avançada, você consegue trabalhar os produtos mais sofisticados e cobrar o valor que merecem. O mercado premium está esperando por você.",
+      products: [
+        { icon: "🌰", name: "Ovo de Colher — Brigadeiro de Castanha", info: "Gourmet • 15 min ativo", profit: "+R$ 65/un" },
+        { icon: "🍮", name: "Ovo na Travessa com Bombons", info: "12 porções • 40 min", profit: "+R$ 100/travessa" },
+        { icon: "🎨", name: "Ovo Bicolor + Kit Completo", info: "500g • Alto valor visual", profit: "+R$ 77+/un" },
+      ],
+      projLabel: "Lucro estimado para sua Páscoa",
+      projValue: "R$ 1.500 – R$ 3.000",
+      projSub: "Linha premium com encomendas e kits exclusivos",
+      ctaText: "Quero acessar as 12 receitas agora →",
+    },
+    // ─── GIFT ───
+    presentear: {
+      badge: "Presenteadora Especial 🎁",
+      title: "Você vai arrasar com presentes artesanais únicos!",
+      sub: "Presentear com algo feito à mão tem um valor emocional que nenhuma loja consegue oferecer. Essas receitas vão fazer as pessoas ficarem com água na boca — e pedindo a receita.",
+      products: [
+        { icon: "🥛", name: "Ovo de Leitinho com Avelã", info: "Cremoso, delicado e irresistível", profit: "✨ Ideal para presentear" },
+        { icon: "🦕", name: "Ovo de Dinossauro", info: "Perfeito para crianças e adultos", profit: "✨ Super original" },
+        { icon: "🎨", name: "Mini Ovinhos Recheados — Kit", info: "3 sabores em caixa elegante", profit: "✨ Parece de confeitaria" },
+      ],
+      projLabel: "Valor economizado comprando pronto",
+      projValue: "R$ 150 – R$ 350",
+      projSub: "vs. comprar ovos prontos em lojas de chocolate",
+      ctaText: "Quero aprender as receitas agora →",
+    },
+    // ─── BOTH ───
+    ambos: {
+      badge: "A Empreendedora Completa ✨",
+      title: "Vender E presentear — você vai arrasar nos dois!",
+      sub: "Você escolheu o melhor dos dois mundos. Com as receitas certas, você presenteia com estilo e ainda sobra dinheiro no bolso. A estratégia ideal é ter um mix que cubra os dois objetivos.",
+      products: [
+        { icon: "🥚", name: "Mini Ovinhos — Kit 5 un", info: "Presenteie 2, venda 8 por dia", profit: "+R$ 55/kit" },
+        { icon: "🍫", name: "Ovo de Brownie", info: "Presente premium para família", profit: "+R$ 76/un" },
+        { icon: "🍮", name: "Mousse de Chocolate", info: "Maior margem, menor esforço", profit: "+R$ 40/pote" },
+      ],
+      projLabel: "Lucro estimado (após presentear família)",
+      projValue: "R$ 700 – R$ 1.400",
+      projSub: "Combinando presenteio + vendas estratégicas",
+      ctaText: "Quero acessar as 12 receitas agora →",
+    },
+  };
+
+  // Pick the right profile
+  const obj = a.q1;
+  const xp  = a.q2;
+
+  if (obj === 'presentear') return profiles.presentear;
+  if (obj === 'ambos')       return profiles.ambos;
+  if (xp === 'iniciante')    return profiles.iniciante_vender;
+  if (xp === 'avancado')     return profiles.avancado_vender;
+  return profiles.intermediario_vender;
+}
+
+function buildResultHTML(p) {
+  const pHtml = p.products.map(pr => `
+    <div class="result-product">
+      <span class="rp-icon">${pr.icon}</span>
+      <span class="rp-body">
+        <span class="rp-name">${pr.name}</span>
+        <span class="rp-info">${pr.info}</span>
+      </span>
+      <span class="rp-profit">${pr.profit}</span>
+    </div>
+  `).join('');
+
+  return `
+    <div class="result-hero">
+      <div class="result-badge">${p.badge}</div>
+      <h2 class="result-title">${p.title}</h2>
+      <p class="result-subtitle">${p.sub}</p>
+    </div>
+
+    <div class="result-products">${pHtml}</div>
+
+    <div class="result-projection">
+      <div class="proj-label">📊 Projeção para sua Páscoa</div>
+      <div class="proj-value">${p.projValue}</div>
+      <div class="proj-sub">${p.projSub}</div>
+    </div>
+
+    <div class="cta-block">
+      <button class="cta-main" onclick="window.open('https://pay.cakto.com.br/gxdfbrh_795736', '_blank')">
+        ${p.ctaText}
+      </button>
+      <div class="cta-guarantee">
+        🔒 Compra segura &nbsp;·&nbsp; ✅ Garantia de 7 dias &nbsp;·&nbsp; 📲 Acesso imediato
+      </div>
+    </div>
+
+    <span class="restart-link" onclick="restartQuiz()">↩ Refazer o quiz</span>
+  `;
+}
+
+function restartQuiz() {
+  Object.keys(answers).forEach(k => delete answers[k]);
+  currentQ = 0;
+
+  document.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+  document.querySelectorAll('[id^="btn-"]').forEach(b => { if(b) b.disabled = true; });
+
+  const prev = document.querySelector('.screen.active');
+  if (prev) {
+    prev.classList.add('leaving');
+    setTimeout(() => {
+      prev.classList.remove('active', 'leaving');
+      document.getElementById('screen-0').classList.add('active');
+      document.getElementById('progressWrap').style.display = 'none';
+    }, 280);
+  }
+}
+
+// ─── CONFETTI ───
+function confetti() {
+  const colors = ['#7A9E7E','#C8781A','#D4A843','#E8C4A0','#5C3317','#A8D5A2','#F4C77A'];
+  for (let i = 0; i < 70; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.top = '-10px';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.width  = (6 + Math.random() * 8) + 'px';
+      el.style.height = (6 + Math.random() * 8) + 'px';
+      el.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+      el.style.animationDuration = (2 + Math.random() * 2.5) + 's';
+      el.style.animationDelay = '0s';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 5000);
+    }, i * 35);
+  }
+}
+</script>
+</body>
+</html>
